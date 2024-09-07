@@ -15,6 +15,62 @@ from cryptography.fernet import Fernet
 from .graph_extraction_func import *
 from .timing_utils import *
 import base64
+import os
+from PIL import Image
+
+
+# --------------------------------------------------------------
+# Function: pngs_to_pdf
+# --------------------------------------------------------------
+# Takes all PNG files in a folder, sorts them alphabetically, 
+# and compiles them into a single PDF file saved in the same folder. 
+# If no file name is provided, the PDF will be named after the folder.
+#
+# Parameters:
+# - folder_path (str): Path to the folder containing PNG files.
+# - file_name (str, optional): Desired name for the output PDF file.
+#
+# Raises:
+# - FileNotFoundError: If the folder does not exist.
+# - ValueError: If no PNG files are found in the folder.
+# --------------------------------------------------------------
+def pngs_to_pdf(folder_path, file_name=None):
+    # Ensure the folder exists
+    if not os.path.exists(folder_path):
+        raise FileNotFoundError(f"The folder {folder_path} does not exist")
+    
+    # Get the name of the folder for default PDF file name
+    if file_name is None:
+        file_name = os.path.basename(os.path.normpath(folder_path))
+    
+    # Fetch all PNG files in the folder and sort them alphabetically
+    png_files = [f for f in os.listdir(folder_path) if f.endswith('.png')]
+    png_files.sort()  # Alphabetical sorting
+    
+    if not png_files:
+        raise ValueError(f"No PNG files found in {folder_path}")
+    
+    # Prepare the list of Image objects to convert to PDF
+    image_list = []
+    for png_file in png_files:
+        image_path = os.path.join(folder_path, png_file)
+        img = Image.open(image_path)
+        # Convert image to RGB mode (required for saving as PDF)
+        img_rgb = img.convert('RGB')
+        image_list.append(img_rgb)
+    
+    # Create the output PDF path
+    output_pdf_path = os.path.join(folder_path, f"{file_name}.pdf")
+    
+    # Save images as a single PDF
+    if image_list:
+        # Save all images into one PDF
+        image_list[0].save(output_pdf_path, save_all=True, append_images=image_list[1:])
+    
+    print(f"PDF saved at: {output_pdf_path}")
+
+# Example usage (uncomment to run):
+# pngs_to_pdf('/path/to/folder')
 
 # Generate a key for encryption/decryption (this should be securely stored)
 key = Fernet.generate_key()
@@ -461,7 +517,8 @@ def process_all(audio_file, json_path, save_path, cache_dir="feature_cache", con
     if  config.get("process_harmonic_cqt_and_harmonic_mel_and_save", False):
         process_harmonic_cqt_and_harmonic_mel_and_save(features, json_path, save_path)
 
-
+    if 
+    pngs_to_pdf(save_path, file_name=audio_file)
 
 '''
 

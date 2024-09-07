@@ -8,15 +8,16 @@ plot_width, plot_height = 50, 20
 
 # Define working directories and paths
 working_directory = "/Users/nicola/Documents/MSc SOund Design 20-24/Final Project"
-# audio_files_root_directory = '/Volumes/Nicola Projects SSD1TB/'
+#audio_files_root_directory = '/Volumes/Nicola Projects SSD1TB/'
+audio_files_root_directory = "/Users/nicola/Documents/MSc SOund Design 20-24/Final Project"
 # audio_files_subdir = "/Sound/Audio_Files"
 
-audio_files_root_directory = '/Volumes/Arancione'
-audio_files_subdir = "Musica Flac"
-#audio_files_subdir = "Sound/My_Productions"
-audio_files_subdir = "Musica Flac"
+#audio_files_root_directory = '/Volumes/Arancione'
+#audio_files_subdir = "Musica Flac"
+audio_files_subdir = "Sound/My_Productions"
+#audio_files_subdir = "Musica Flac"
 
-graphs_location = "myFavouritesWithStems"
+graphs_location = "myProductions"
 graphs_root_dir = '/Volumes/Nicola Projects SSD1TB/graphs'
 graphs_dir = os.path.join(graphs_root_dir, graphs_location)
 cache_dir = os.path.join(graphs_dir, '.feature_cache')
@@ -45,7 +46,7 @@ if surprise_mode:
 # Configuration for stem processing
 config_stems_drums = {
     "process_stft_and_save": True,
-    "process_SSM_and_chr_and_save": False,
+    "process_SSM_and_chr_and_save": True,
     "process_mel_spectrogram_and_save": True,
     "process_harmonic_cqt_and_percussive_sfft_and_save": False,
     "process_harmonic_cqt_and_harmonic_mel_and_save": False

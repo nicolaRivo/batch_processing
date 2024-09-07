@@ -299,8 +299,8 @@ def process_mel_spectrogram_and_save(features, json_path, save_path, plot_width=
     plt.title(f'Mel Spectrogram: {song_name}')
     plt.colorbar(format='%+2.0f dB')
 
-    #mel_spec_path = os.path.join(save_path, f"Mel_Spectrogram_{song_name}.png")
-    mel_spec_path = os.path.join(save_path, f"Mel_Spectrogram.png")
+    mel_spec_path = os.path.join(save_path, f"Mel_Spectrogram_{song_name}.png")
+    #mel_spec_path = os.path.join(save_path, f"Mel_Spectrogram.png")
     plt.savefig(mel_spec_path)
     plt.close()
 
