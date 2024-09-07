@@ -17,24 +17,59 @@ from .timing_utils import *
 import base64
 import os
 from PIL import Image
+import os
 
+# Set up logging configuration
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s \n')
+
+def welcome_message():
+    print(r"""
+          
+
+88P'888'Y88                 dP,e,         888                     Y8b Y88888P ,e,       ,e,                   
+P'  888  'Y 888,8,  ,"Y88b  8b "   ,"Y88b 888 888 888 8e   ,"Y88b  Y8b Y888P   "   dP"Y  "   e88 88e  888 8e  
+    888     888 "  "8" 888 888888 "8" 888 888 888 888 88b "8" 888   Y8b Y8P   888 C88b  888 d888 888b 888 88b 
+    888     888    ,ee 888  888   ,ee 888 888 888 888 888 ,ee 888    Y8b Y    888  Y88D 888 Y888 888P 888 888 
+    888     888    "88 888  888   "88 888 888 888 888 888 "88 888     Y8P     888 d,dP  888  "88 88"  888 888 
+                                                                                                              
+                                                                                                              
+                                                                                 
+       Welcome to the TralfamaVision Batch Processing Script!
+   ──────────────────────────────────────────────────────────────
+         This script will help you process audio files in bulk.
+         Get ready for a smooth and efficient audio workflow!
+
+     🚀 Features:
+     • Separate stems and process audio
+     • Create Recap PDFs for your projects
+     • Manage your cache and track progress
+
+       Ready to start? Let's get those audio files processed! 🎶
+   ──────────────────────────────────────────────────────────────
+    """)
 
 # --------------------------------------------------------------
 # Function: pngs_to_pdf
 # --------------------------------------------------------------
 # Takes all PNG files in a folder, sorts them alphabetically, 
-# and compiles them into a single PDF file saved in the same folder. 
+# and compiles them into a single PDF file saved in the specified folder. 
 # If no file name is provided, the PDF will be named after the folder.
 #
 # Parameters:
 # - folder_path (str): Path to the folder containing PNG files.
 # - file_name (str, optional): Desired name for the output PDF file.
+# - save_path (str, optional): Directory where the PDF will be saved.
+#   If not provided, it will be saved in the same folder as the PNG files.
 #
 # Raises:
 # - FileNotFoundError: If the folder does not exist.
 # - ValueError: If no PNG files are found in the folder.
+#
+# Example usage:
+# pngs_to_pdf('/path/to/folder', 'output_file_name')
+# pngs_to_pdf('/path/to/folder', 'output_file_name', '/path/to/save_folder')
 # --------------------------------------------------------------
-def pngs_to_pdf(folder_path, file_name=None):
+def pngs_to_pdf(folder_path, file_name=None, save_path=None):
     # Ensure the folder exists
     if not os.path.exists(folder_path):
         raise FileNotFoundError(f"The folder {folder_path} does not exist")
@@ -59,8 +94,15 @@ def pngs_to_pdf(folder_path, file_name=None):
         img_rgb = img.convert('RGB')
         image_list.append(img_rgb)
     
+    # If no save_path is provided, save in the same folder as PNG files
+    if save_path is None:
+        save_path = folder_path
+    
+    # Ensure save_path directory exists
+    os.makedirs(save_path, exist_ok=True)
+
     # Create the output PDF path
-    output_pdf_path = os.path.join(folder_path, f"{file_name}.pdf")
+    output_pdf_path = os.path.join(save_path, f"{file_name} - Recap.pdf")
     
     # Save images as a single PDF
     if image_list:
@@ -69,19 +111,30 @@ def pngs_to_pdf(folder_path, file_name=None):
     
     print(f"PDF saved at: {output_pdf_path}")
 
-# Example usage (uncomment to run):
-# pngs_to_pdf('/path/to/folder')
+
 
 # Generate a key for encryption/decryption (this should be securely stored)
-key = Fernet.generate_key()
-cipher_suite = Fernet(key)
-
-
-# Set up logging configuration
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s \n')
+#key = Fernet.generate_key()
+#cipher_suite = Fernet(key)
 
 
 
+# --------------------------------------------------------------
+# Function: decrypt_text
+# --------------------------------------------------------------
+# Decrypts an encrypted text using a provided decryption key.
+#
+# Parameters:
+# - encrypted_text (str): The base64-encoded encrypted text.
+# - decryption_key (str): Base64-encoded decryption key.
+#
+# Returns:
+# - str: The decrypted text.
+#
+# Example usage:
+# decrypted = decrypt_text(encrypted_text, decryption_key)
+# print(decrypted)
+# --------------------------------------------------------------
 def decrypt_text(encrypted_text, decryption_key):
     """
     Decrypts the encrypted text using the provided decryption key.
@@ -103,6 +156,21 @@ def decrypt_text(encrypted_text, decryption_key):
     return decrypted_text.decode()
 
 
+# --------------------------------------------------------------
+# Function: get_encrypted_data
+# --------------------------------------------------------------
+# Reads the encrypted name and decryption key from a file.
+#
+# Parameters:
+# - file_path (str): The path to the file containing encrypted data.
+#
+# Returns:
+# - tuple: (encrypted_name, decryption_key), both as strings.
+#
+# Example usage:
+# encrypted_name, decryption_key = get_encrypted_data('/path/to/file.txt')
+# print(encrypted_name, decryption_key)
+# --------------------------------------------------------------
 def get_encrypted_data(file_path):
     """
     Reads the encrypted name and decryption key from the specified file.
@@ -120,7 +188,21 @@ def get_encrypted_data(file_path):
     
     return encrypted_name, decryption_key
 
-
+# --------------------------------------------------------------
+# Function: ensure_json_file_exists
+# --------------------------------------------------------------
+# Ensures that the JSON file exists at the specified path.
+# If the file doesn't exist, an empty JSON file is created.
+#
+# Parameters:
+# - json_path (str): Path to the JSON file.
+#
+# Raises:
+# - Exception: If there is an error creating or verifying the JSON file.
+#
+# Example usage:
+# ensure_json_file_exists('/path/to/data.json')
+# --------------------------------------------------------------
 def ensure_json_file_exists(json_path):
     """
     Checks if the JSON file exists at the specified path.
@@ -145,7 +227,21 @@ def ensure_json_file_exists(json_path):
         except Exception as e:
             print(f"Error verifying JSON file at {json_path}: {e}")
 
-
+# --------------------------------------------------------------
+# Function: ensure_directory_exists
+# --------------------------------------------------------------
+# Ensures that the specified directory exists. If it doesn't exist,
+# the user is prompted to create it.
+#
+# Parameters:
+# - directory (str): The directory path to check or create.
+#
+# Raises:
+# - FileNotFoundError: If the directory is not created and doesn't exist.
+#
+# Example usage:
+# ensure_directory_exists('/path/to/directory')
+# --------------------------------------------------------------
 def ensure_directory_exists(directory):
     if not os.path.exists(directory):
         create_dir = input(f"The directory '{directory}' does not exist. Do you want to create it? (y/n): ")
@@ -155,7 +251,22 @@ def ensure_directory_exists(directory):
         else:
             raise FileNotFoundError(f"Directory '{directory}' not found and was not created.")
 
-
+# --------------------------------------------------------------
+# Function: encrypt
+# --------------------------------------------------------------
+# Encrypts a given text using a simple Caesar cipher based on the provided key.
+#
+# Parameters:
+# - text (str): The text to encrypt.
+# - key (str): The key to use for the encryption (determines shift).
+#
+# Returns:
+# - str: The encrypted text.
+#
+# Example usage:
+# encrypted = encrypt('hello world', 'key')
+# print(encrypted)
+# --------------------------------------------------------------
 def encrypt(text, key):
     encrypted_text = []
     key_length = len(key)
@@ -171,7 +282,22 @@ def encrypt(text, key):
     
     return ''.join(encrypted_text)
 
-
+# --------------------------------------------------------------
+# Function: decrypt
+# --------------------------------------------------------------
+# Decrypts a text encrypted using a simple Caesar cipher based on the provided key.
+#
+# Parameters:
+# - encrypted_text (str): The encrypted text.
+# - key (str): The key used for decryption.
+#
+# Returns:
+# - str: The decrypted text.
+#
+# Example usage:
+# decrypted = decrypt('encrypted_text', 'key')
+# print(decrypted)
+# --------------------------------------------------------------
 def decrypt(encrypted_text, key):
     decrypted_text = []
     key_length = len(key)
@@ -187,7 +313,21 @@ def decrypt(encrypted_text, key):
     
     return ''.join(decrypted_text)
 
-
+# --------------------------------------------------------------
+# Function: explore_audio_files
+# --------------------------------------------------------------
+# Explores the given directory and subdirectories to collect all audio files.
+#
+# Parameters:
+# - audio_files_dir (str): The root directory to search for audio files.
+#
+# Returns:
+# - list: A list of file paths for the found audio files.
+#
+# Example usage:
+# audio_files = explore_audio_files('/path/to/audio/files')
+# print(audio_files)
+# --------------------------------------------------------------
 def explore_audio_files(audio_files_dir):
     """
     Explore the directory and its subdirectories to gather all audio files.
@@ -201,7 +341,22 @@ def explore_audio_files(audio_files_dir):
                 audio_files_paths.append(file_path)
     return audio_files_paths
 
-
+# --------------------------------------------------------------
+# Function: string_to_5_letter_hash
+# --------------------------------------------------------------
+# Converts a given input string into a 5-letter hash using a SHA-256 hash,
+# followed by base-26 conversion (A-Z).
+#
+# Parameters:
+# - input_string (str): The input string to hash.
+#
+# Returns:
+# - str: A 5-letter hash representation of the input string.
+#
+# Example usage:
+# hash_code = string_to_5_letter_hash('example string')
+# print(hash_code)
+# --------------------------------------------------------------
 def string_to_5_letter_hash(input_string):
     # Step 1: Generate a SHA-256 hash of the input string
     hash_object = hashlib.sha256(input_string.encode())
@@ -222,7 +377,33 @@ def string_to_5_letter_hash(input_string):
     # Step 5: Return the 5-letter hash
     return ''.join(letters)
 
-
+# --------------------------------------------------------------
+# Function: load_tracks
+# --------------------------------------------------------------
+# Loads audio tracks from a directory and manages them for playback, debugging, or
+# surprise mode. Supports chunk-based loading and file shuffling.
+#
+# Parameters:
+# - working_directory (str): The base working directory.
+# - audio_files_dir (str): Directory containing audio files.
+# - json_file_path (str): Path to the JSON file used for tracking.
+# - sr (int): Sample rate for loading audio files (default is 44100).
+# - debug (int): Flag to enable or disable debugging mode.
+# - playback (int): Flag for enabling track playback.
+# - file_names (str): Specific track names to load.
+# - load_all_tracks (bool): Whether to load all tracks in the directory.
+# - start_index (int): Start index for chunk-based loading.
+# - chunk_size (int): Number of tracks to load in one chunk.
+# - shuffle (bool): Whether to shuffle the track order.
+# - use_artist_name (bool): Whether to use the artist's name in the track list.
+# - surprise_mode (bool): Whether to load tracks in "surprise mode."
+#
+# Returns:
+# - tuple: A list of loaded tracks and the index of the next chunk to process.
+#
+# Example usage:
+# tracks, next_index = load_tracks('/working/dir', '/audio/files', '/path/to/json')
+# --------------------------------------------------------------
 def load_tracks(working_directory, audio_files_dir='', json_file_path='', sr=44100, debug=0, playback=0, file_names='', load_all_tracks=False, start_index=0, chunk_size=20, shuffle=False, use_artist_name=True, surprise_mode=False):
     """
     Initializes the working environment by setting paths, loading audio files,
@@ -428,7 +609,22 @@ def load_tracks(working_directory, audio_files_dir='', json_file_path='', sr=441
 
     return loaded_audio_files, next_start_index
 
-
+# --------------------------------------------------------------
+# Function: is_processing_needed
+# --------------------------------------------------------------
+# Checks if any audio processing is needed for a track based on its status in a JSON file.
+#
+# Parameters:
+# - track_name (str): The name of the track to check.
+# - json_data (dict): The loaded JSON data that tracks processing states.
+#
+# Returns:
+# - bool: True if processing is needed, False otherwise.
+#
+# Example usage:
+# process_needed = is_processing_needed('track_name', json_data)
+# print(process_needed)
+# --------------------------------------------------------------
 def is_processing_needed(track_name, json_data):
     """Check if any processing is needed for the track."""
     required_keys = [
@@ -445,7 +641,22 @@ def is_processing_needed(track_name, json_data):
         return False
     return True  # If track not found in JSON, assume processing is needed
 
-
+# --------------------------------------------------------------
+# Function: delete_cached_features
+# --------------------------------------------------------------
+# Deletes the cached feature file for a given audio file, if it exists.
+#
+# Parameters:
+# - audio_file (tuple): A tuple containing (y, sr, path, duration).
+# - cache_dir (str): The directory where cached feature files are stored (default: "feature_cache").
+#
+# Returns:
+# - bool: True if the cache file was successfully deleted, False otherwise.
+#
+# Example usage:
+# cache_deleted = delete_cached_features(audio_file)
+# print(cache_deleted)
+# --------------------------------------------------------------
 def delete_cached_features(audio_file, cache_dir="feature_cache"):
 
 
@@ -472,7 +683,22 @@ def delete_cached_features(audio_file, cache_dir="feature_cache"):
         print(f"No cached features found for {song_name}")
         return False
     
-
+# --------------------------------------------------------------
+# Function: process_all
+# --------------------------------------------------------------
+# Processes all spectrograms and related features for an audio file. Uses caching for efficiency.
+# The function calls individual processing methods based on configuration.
+#
+# Parameters:
+# - audio_file (str): Path to the audio file.
+# - json_path (str): Path to the JSON file for processing status.
+# - save_path (str): Directory for saving the processed output files.
+# - cache_dir (str): Directory for storing and retrieving cached features.
+# - config (dict): Configuration specifying which processing functions to run or skip.
+#
+# Example usage:
+# process_all(audio_file, '/path/to/json', '/path/to/save')
+# --------------------------------------------------------------
 def process_all(audio_file, json_path, save_path, cache_dir="feature_cache", config=None):
     """
     Unified function to process all the spectrograms and related features for an audio file.
@@ -517,8 +743,7 @@ def process_all(audio_file, json_path, save_path, cache_dir="feature_cache", con
     if  config.get("process_harmonic_cqt_and_harmonic_mel_and_save", False):
         process_harmonic_cqt_and_harmonic_mel_and_save(features, json_path, save_path)
 
-    if 
-    pngs_to_pdf(save_path, file_name=audio_file)
+
 
 '''
 
