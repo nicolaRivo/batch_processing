@@ -83,6 +83,9 @@ def main():
         # PROCESS EACH AUDIO FILE IN THE LOADED CHUNK
         # ─────────────────────────────────────────────────────────────────────
         for audio_file in loaded_audio_files:
+            
+
+
             # Get the name of the song from the audio path
             song_name = audio_file[4]
 
@@ -92,6 +95,9 @@ def main():
 
             # Check if the song needs processing
             if is_processing_needed(song_name, json_data):
+                
+                #monitor memory leak and CPU usage
+                print_resource_usage()
                 # Separate the stems and return drum and drumless tracks
                 stem_split = make_drumTrack_and_drumLessTrack(audio_file, parent_dir=stems_dir)
 

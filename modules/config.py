@@ -45,7 +45,9 @@ audio_files_root_dir_options = [
 # --------------------------------------------------------------
 audio_files_location_options = [
     "Sound/My_Productions",
-    "Musica Flac"
+    "Sound/My_Productions/Final",
+    "Musica Flac",
+    "Sound/Audio_Files"
 ]
 
 # --------------------------------------------------------------
@@ -61,5 +63,6 @@ graphs_root_dir_options = [
 # --------------------------------------------------------------
 graphs_location_options = [
     "myProductions",
-    "anotherLocation"
+    "anotherLocation",
+    "myFaves_new"
 ]

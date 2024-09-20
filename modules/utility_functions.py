@@ -18,6 +18,16 @@ import base64
 import os
 from PIL import Image
 import os
+import psutil
+
+
+
+def print_resource_usage():
+    """Function to print the CPU and memory usage."""
+    print(f"CPU Usage: {psutil.cpu_percent(interval=1)}%")
+    print(f"Memory Usage: {psutil.virtual_memory().percent}%")
+    print(f"Available Memory: {psutil.virtual_memory().available / (1024 * 1024)} MB")
+    print(f"Used Memory: {psutil.virtual_memory().used / (1024 * 1024)} MB\n")
 
 # Set up logging configuration
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s \n')
